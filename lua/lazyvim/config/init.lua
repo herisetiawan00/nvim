@@ -3,32 +3,12 @@ _G.LazyVim = require("lazyvim.util")
 ---@class LazyVimConfig: LazyVimOptions
 local M = {}
 
-M.version = "12.39.0" -- x-release-please-version
+M.version = "12.39.0"
 LazyVim.config = M
 
 ---@class LazyVimOptions
 local defaults = {
-  -- colorscheme can be a string like `catppuccin` or a function that will load the colorscheme
   ---@type string|fun()
-  colorscheme = function()
-    require("tokyonight").load()
-  end,
-  -- load the default settings
-  defaults = {
-    autocmds = true, -- lazyvim.config.autocmds
-    keymaps = true, -- lazyvim.config.keymaps
-    -- lazyvim.config.options can't be configured here since that's loaded before lazyvim setup
-    -- if you want to disable loading options, add `package.loaded["lazyvim.config.options"] = true` to the top of your init.lua
-  },
-  news = {
-    -- When enabled, NEWS.md will be shown when changed.
-    -- This only contains big new features and breaking changes.
-    lazyvim = true,
-    -- Same but for Neovim's news.txt
-    neovim = false,
-  },
-  -- icons used by other plugins
-  -- stylua: ignore
   icons = {
     misc = {
       dots = "󰇘",
@@ -37,63 +17,63 @@ local defaults = {
       octo = "",
     },
     dap = {
-      Stopped             = { "󰁕 ", "DiagnosticWarn", "DapStoppedLine" },
-      Breakpoint          = " ",
+      Stopped = { "󰁕 ", "DiagnosticWarn", "DapStoppedLine" },
+      Breakpoint = " ",
       BreakpointCondition = " ",
-      BreakpointRejected  = { " ", "DiagnosticError" },
-      LogPoint            = ".>",
+      BreakpointRejected = { " ", "DiagnosticError" },
+      LogPoint = ".>",
     },
     diagnostics = {
       Error = " ",
-      Warn  = " ",
-      Hint  = " ",
-      Info  = " ",
+      Warn = " ",
+      Hint = " ",
+      Info = " ",
     },
     git = {
-      added    = " ",
+      added = " ",
       modified = " ",
-      removed  = " ",
+      removed = " ",
     },
     kinds = {
-      Array         = " ",
-      Boolean       = "󰨙 ",
-      Class         = " ",
-      Codeium       = "󰘦 ",
-      Color         = " ",
-      Control       = " ",
-      Collapsed     = " ",
-      Constant      = "󰏿 ",
-      Constructor   = " ",
-      Copilot       = " ",
-      Enum          = " ",
-      EnumMember    = " ",
-      Event         = " ",
-      Field         = " ",
-      File          = " ",
-      Folder        = " ",
-      Function      = "󰊕 ",
-      Interface     = " ",
-      Key           = " ",
-      Keyword       = " ",
-      Method        = "󰊕 ",
-      Module        = " ",
-      Namespace     = "󰦮 ",
-      Null          = " ",
-      Number        = "󰎠 ",
-      Object        = " ",
-      Operator      = " ",
-      Package       = " ",
-      Property      = " ",
-      Reference     = " ",
-      Snippet       = " ",
-      String        = " ",
-      Struct        = "󰆼 ",
-      TabNine       = "󰏚 ",
-      Text          = " ",
+      Array = " ",
+      Boolean = "󰨙 ",
+      Class = " ",
+      Codeium = "󰘦 ",
+      Color = " ",
+      Control = " ",
+      Collapsed = " ",
+      Constant = "󰏿 ",
+      Constructor = " ",
+      Copilot = " ",
+      Enum = " ",
+      EnumMember = " ",
+      Event = " ",
+      Field = " ",
+      File = " ",
+      Folder = " ",
+      Function = "󰊕 ",
+      Interface = " ",
+      Key = " ",
+      Keyword = " ",
+      Method = "󰊕 ",
+      Module = " ",
+      Namespace = "󰦮 ",
+      Null = " ",
+      Number = "󰎠 ",
+      Object = " ",
+      Operator = " ",
+      Package = " ",
+      Property = " ",
+      Reference = " ",
+      Snippet = " ",
+      String = " ",
+      Struct = "󰆼 ",
+      TabNine = "󰏚 ",
+      Text = " ",
       TypeParameter = " ",
-      Unit          = " ",
-      Value         = " ",
-      Variable      = "󰀫 ",
+      Unit = " ",
+      Value = " ",
+      Variable = "󰀫 ",
     },
   },
   ---@type table<string, string[]|boolean>?
@@ -115,7 +95,6 @@ local defaults = {
     },
     markdown = false,
     help = false,
-    -- you can specify a different filter for each filetype
     lua = {
       "Class",
       "Constructor",
@@ -126,7 +105,6 @@ local defaults = {
       "Method",
       "Module",
       "Namespace",
-      -- "Package", -- remove package since luals uses it for control flow structures
       "Property",
       "Struct",
       "Trait",
@@ -139,7 +117,6 @@ M.json = {
   path = vim.g.lazyvim_json or vim.fn.stdpath("config") .. "/lazyvim.json",
   data = {
     version = nil, ---@type string?
-    news = {}, ---@type table<string, string>
     extras = {}, ---@type string[]
   },
 }
@@ -167,27 +144,12 @@ local lazy_clipboard
 function M.setup(opts)
   options = vim.tbl_deep_extend("force", defaults, opts or {}) or {}
 
-  -- autocmds can be loaded lazily when not opening a file
-  local lazy_autocmds = vim.fn.argc(-1) == 0
-  if not lazy_autocmds then
-    M.load("autocmds")
-  end
-
   local group = vim.api.nvim_create_augroup("LazyVim", { clear = true })
   vim.api.nvim_create_autocmd("User", {
     group = group,
     pattern = "VeryLazy",
     callback = function()
-      if lazy_autocmds then
-        M.load("autocmds")
-      end
-      M.load("keymaps")
-      if lazy_clipboard ~= nil then
-        vim.opt.clipboard = lazy_clipboard
-      end
-
       LazyVim.format.setup()
-      LazyVim.news.setup()
       LazyVim.root.setup()
 
       vim.api.nvim_create_user_command("LazyExtras", function()
@@ -285,10 +247,6 @@ function M.init()
   -- delay notifications till vim.notify was replaced or after 500ms
   LazyVim.lazy_notify()
 
-  -- load options here, before lazy init while sourcing plugin modules
-  -- this is needed to make sure options will be correctly applied
-  -- after installing missing plugins
-  M.load("options")
   -- defer built-in clipboard handling: "xsel" and "pbcopy" can be slow
   lazy_clipboard = vim.opt.clipboard
   vim.opt.clipboard = ""
