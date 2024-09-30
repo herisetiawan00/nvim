@@ -13,15 +13,7 @@ local prios = {
 ---@type string[]
 local extras = LazyVim.dedup(LazyVim.config.json.data.extras)
 
-local version = vim.version()
-local v = version.major .. "_" .. version.minor
-
-local compat = { "0_9" }
-
 LazyVim.plugin.save_core()
-if vim.tbl_contains(compat, v) then
-  table.insert(extras, 1, "lazyvim.plugins.compat.nvim-" .. v)
-end
 
 table.sort(extras, function(a, b)
   local pa = prios[a] or 50
