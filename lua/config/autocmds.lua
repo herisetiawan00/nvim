@@ -5,3 +5,6 @@
 require("lspconfig").tailwindcss.setup({})
 require("lspconfig").ts_ls.setup({})
 require("lspconfig").dartls.setup({})
+require("lspconfig").lua_ls.setup({})
+
+vim.cmd.colorscheme("catppuccin")
